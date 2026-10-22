@@ -9,6 +9,10 @@ on:
       version:
         description: "verfy version on PyPI (empty: the latest)"
         required: false
+      rebuild:
+        description: "Build again and replace the files of an existing release"
+        type: boolean
+        default: false
   schedule:
     - cron: "17 */6 * * *"
 
@@ -30,12 +34,13 @@ jobs:
       - id: v
         env:
           WANT: ${{ inputs.version }}
+          REBUILD: ${{ inputs.rebuild }}
           GH_TOKEN: ${{ github.token }}
         run: |
           v="${WANT:-$(curl -fsS https://pypi.org/pypi/verfy/json | python3 -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])')}"
           echo "$v" | grep -Eqx '[0-9]+\.[0-9]+\.[0-9]+([a-z0-9.]*)' || { echo "::error::bad version $v"; exit 1; }
           echo "version=$v" >> "$GITHUB_OUTPUT"
-          if gh release view "v$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "build=false"; else echo "build=true"; fi >> "$GITHUB_OUTPUT"
+          if [ "$REBUILD" = true ] || ! gh release view "v$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "build=true"; else echo "build=false"; fi >> "$GITHUB_OUTPUT"
 
   build:
     name: Build ${{ matrix.target }}
@@ -103,5 +108,9 @@ jobs:
           cd out
           sha256sum verfy-* > SHA256SUMS
           cat SHA256SUMS
+          if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "v$VERSION" * --clobber --repo "$GITHUB_REPOSITORY"
+            exit 0
+          fi
           gh release create "v$VERSION" * --repo "$GITHUB_REPOSITORY" --title "verfy $VERSION" --notes \
             "Standalone builds of [verfy $VERSION](https://pypi.org/project/verfy/$VERSION/) from PyPI, with Python included. Built and tested by this repository's workflow. Install: https://verfy-tech.vercel.app/docs#install"
