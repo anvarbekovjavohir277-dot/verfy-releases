@@ -80,6 +80,8 @@ jobs:
           set +e; "$v" check "rm -rf ~"; code=$?; set -e
           test "$code" -eq 2
           VERFY_HOME="$RUNNER_TEMP/home" "$v" demo | grep -q "chain verified"
+          # reaches GitHub over TLS from inside the build; this build is never older than the latest release
+          "$v" update --check
       - name: Package
         run: |
           name="verfy-${{ matrix.target }}.${{ matrix.ext }}"
