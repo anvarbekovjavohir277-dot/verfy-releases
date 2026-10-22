@@ -1,0 +1,53 @@
+name: Test the one-line installers
+
+# Runs the live install scripts from the website on clean machines, the way a user would.
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build standalone verfy"]
+    types: [completed]
+  schedule:
+    - cron: "41 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  unix:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - name: Install
+        run: curl -fsSL https://verfy-tech.vercel.app/install.sh | sh
+      - name: Use it from a new shell
+        shell: bash -l {0}
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          verfy --version
+          verfy check "npm test"
+          set +e; verfy check "rm -rf ~"; code=$?; set -e
+          test "$code" -eq 2
+
+  windows:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install
+        shell: powershell
+        run: irm https://verfy-tech.vercel.app/install.ps1 | iex
+      - name: Use it from a new shell
+        shell: powershell
+        run: |
+          $env:Path = [Environment]::GetEnvironmentVariable("Path", "User") + ";" + $env:Path
+          verfy --version
+          verfy check "npm test"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          verfy check "rm -rf ~"
+          if ($LASTEXITCODE -ne 2) { exit 1 }
+          exit 0
