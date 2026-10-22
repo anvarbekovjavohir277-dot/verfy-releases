@@ -53,7 +53,7 @@ jobs:
           - { os: windows-latest, target: windows-x64, ext: zip }
           - { os: ubuntu-22.04, target: linux-x64, ext: tar.gz }
           - { os: ubuntu-22.04-arm, target: linux-arm64, ext: tar.gz }
-          - { os: macos-latest, target: macos-arm64, ext: tar.gz }
+          - { os: macos-15, target: macos-arm64, ext: tar.gz }
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     env:
