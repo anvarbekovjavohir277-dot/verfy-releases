@@ -68,7 +68,9 @@ jobs:
       - name: Test the build
         run: |
           v=dist/verfy/verfy; [ -f "$v.exe" ] && v="$v.exe"
-          "$v" --version | tee /dev/stderr | grep -qx "verfy $VERSION"
+          got=$("$v" --version | tr -d '\r')
+          echo "$got"
+          test "$got" = "verfy $VERSION"
           "$v" check "npm test"
           set +e; "$v" check "rm -rf ~"; code=$?; set -e
           test "$code" -eq 2
