@@ -51,3 +51,22 @@ jobs:
           verfy check "rm -rf ~"
           if ($LASTEXITCODE -ne 2) { exit 1 }
           exit 0
+
+  action:
+    # the public GitHub Action, used from another repository the way the docs show it
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: A repository with a locked MCP config
+        run: |
+          base=https://raw.githubusercontent.com/anvarbekovjavohir277-dot/verfy/main/verfy-cli/examples/ci
+          curl -fsSL -o .mcp.json "$base/mcp.json"
+          curl -fsSL -o verfy.lock "$base/verfy.lock"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - uses: anvarbekovjavohir277-dot/verfy@cli-v0.3.0
+        with:
+          config: .mcp.json
+          lock: verfy.lock
