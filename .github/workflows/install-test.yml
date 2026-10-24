@@ -52,6 +52,42 @@ jobs:
           if ($LASTEXITCODE -ne 2) { exit 1 }
           exit 0
 
+  pip:
+    # the docs' quickstart on a clean machine, from `pip install verfy` to a working Claude Code guard
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.13"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Quickstart
+        run: |
+          start=$SECONDS
+          python -m pip install --disable-pip-version-check --no-cache-dir verfy
+          latest=$(curl -fsS https://pypi.org/pypi/verfy/json | python -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])')
+          test "$(verfy --version | tr -d '\r')" = "verfy $latest"
+          verfy init --updates manual
+          verfy hook install --write
+          grep -q "verfy hook pre-tool-use" "$HOME/.claude/settings.json"
+          # what Claude Code sends before running a command
+          out=$(echo '{"tool_name":"Bash","tool_input":{"command":"rm -rf ~"},"session_id":"t","cwd":"."}' | verfy hook pre-tool-use)
+          echo "$out"
+          echo "$out" | grep -q '"permissionDecision": *"deny"'
+          verfy scan --discover
+          verfy policy use strict --force
+          verfy demo | grep -q "chain verified"
+          verfy update --check
+          echo "From pip install to a working guard: $((SECONDS - start)) s"
+
   action:
     # the public GitHub Action, used from another repository the way the docs show it
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
@@ -63,10 +99,10 @@ jobs:
           base=https://raw.githubusercontent.com/anvarbekovjavohir277-dot/verfy/main/verfy-cli/examples/ci
           curl -fsSL -o .mcp.json "$base/mcp.json"
           curl -fsSL -o verfy.lock "$base/verfy.lock"
-      - uses: actions/setup-python@v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
-      - uses: anvarbekovjavohir277-dot/verfy@cli-v0.3.0
+      - uses: anvarbekovjavohir277-dot/verfy@cli-v0.5.1
         with:
           config: .mcp.json
           lock: verfy.lock
