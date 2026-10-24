@@ -71,10 +71,15 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Quickstart
         run: |
-          start=$SECONDS
-          python -m pip install --disable-pip-version-check --no-cache-dir verfy
           latest=$(curl -fsS https://pypi.org/pypi/verfy/json | python -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])')
+          # a release published minutes ago may not be on every PyPI mirror yet
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            python -m pip install --disable-pip-version-check --no-cache-dir "verfy==$latest" && break
+            [ "$i" = 10 ] && exit 1
+            echo "verfy $latest is not on this PyPI mirror yet; trying again in 30 s"; sleep 30
+          done
           test "$(verfy --version | tr -d '\r')" = "verfy $latest"
+          start=$SECONDS
           verfy init --updates manual
           verfy hook install --write
           grep -q "verfy hook pre-tool-use" "$HOME/.claude/settings.json"
@@ -86,7 +91,7 @@ jobs:
           verfy policy use strict --force
           verfy demo | grep -q "chain verified"
           verfy update --check
-          echo "From pip install to a working guard: $((SECONDS - start)) s"
+          echo "From verfy init to a working guard: $((SECONDS - start)) s"
 
   action:
     # the public GitHub Action, used from another repository the way the docs show it
