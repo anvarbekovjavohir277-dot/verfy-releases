@@ -1,6 +1,6 @@
-name: Test the one-line installers
+name: Test the installers
 
-# Runs the live install scripts from the website on clean machines, the way a user would.
+# Runs the live install scripts from the website on clean machines, the way the docs say: download, then run.
 on:
   workflow_dispatch:
   workflow_run:
@@ -22,8 +22,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
-      - name: Install
-        run: curl -fsSL https://verfy-tech.vercel.app/install.sh | sh
+      - name: Install (download, then run)
+        run: |
+          curl -fsSLO https://verfy-tech.vercel.app/install.sh
+          sh install.sh
       - name: Use it from a new shell
         shell: bash -l {0}
         run: |
@@ -38,9 +40,11 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 10
     steps:
-      - name: Install
-        shell: powershell
-        run: irm https://verfy-tech.vercel.app/install.ps1 | iex
+      - name: Install (download, then run, from Command Prompt as the docs show)
+        shell: cmd
+        run: |
+          powershell -c "irm https://verfy-tech.vercel.app/install.ps1 -OutFile install.ps1" || exit /b 1
+          powershell -ExecutionPolicy Bypass -File install.ps1
       - name: Use it from a new shell
         shell: powershell
         run: |
