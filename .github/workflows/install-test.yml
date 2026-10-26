@@ -98,20 +98,28 @@ jobs:
           echo "From verfy init to a working guard: $((SECONDS - start)) s"
 
   action:
-    # the public GitHub Action, used from another repository the way the docs show it
+    # the CI check the docs show (pip install, then verfy lock check), with the locked example in examples/ci
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: A repository with a locked MCP config
-        run: |
-          base=https://raw.githubusercontent.com/anvarbekovjavohir277-dot/verfy/main/verfy-cli/examples/ci
-          curl -fsSL -o .mcp.json "$base/mcp.json"
-          curl -fsSL -o verfy.lock "$base/verfy.lock"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.13"
-      - uses: anvarbekovjavohir277-dot/verfy@cli-v0.5.1
-        with:
-          config: .mcp.json
-          lock: verfy.lock
+      - name: Locked tools pass
+        run: |
+          python -m pip install --disable-pip-version-check verfy
+          verfy lock check --config examples/ci/mcp.json --lock examples/ci/verfy.lock
+      - name: A changed tool fails the check
+        env:
+          GITHUB_ACTIONS: "false" # an expected failure: keep its annotations out of this run
+          GITHUB_STEP_SUMMARY: ""
+        run: |
+          printf '{"mcpServers":{"demo":{"command":"python","args":["-m","verfy.demo_server","--rugpull"]}}}' > "$RUNNER_TEMP/rugpull.json"
+          if verfy lock check --config "$RUNNER_TEMP/rugpull.json" --lock examples/ci/verfy.lock; then
+            echo "expected the changed tool to fail the check" >&2
+            exit 1
+          fi

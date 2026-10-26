@@ -1,16 +1,45 @@
-# verfy standalone builds
+# Verfy
 
-Ready-to-run builds of the [verfy](https://pypi.org/project/verfy/) CLI that carry their own Python, so nothing else has to be installed first.
+Verfy checks every tool call a coding agent makes against deterministic allow, ask and deny rules (no model decides), locks MCP tools and instruction files so a quiet change fails CI, and writes an Ed25519-signed receipt for each checked call. Website and docs: https://verfy-tech.vercel.app
+
+This repository holds what you need to install and use it: ready-to-run builds, the Claude Code plugin, the security policy, the advisories and the research.
+
+## Install
 
 ```bash
-curl -fsSL https://verfy-tech.vercel.app/install.sh | sh          # macOS (Apple silicon) and Linux (x64, arm64)
+pip install verfy                                                  # Python 3.10 or newer
+curl -fsSL https://verfy-tech.vercel.app/install.sh | sh          # or a build with its own Python: macOS (Apple silicon), Linux (x64, arm64)
 ```
 
 ```powershell
 irm https://verfy-tech.vercel.app/install.ps1 | iex                # Windows (x64)
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.2.0` first to install a specific version. With Python 3.10 or newer you can also run `pip install verfy`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.6.3` first to install a specific version. Then run `verfy init`.
+
+Claude Code plugin (it calls the `verfy` command, so install the CLI first):
+
+```bash
+claude plugin marketplace add anvarbekovjavohir277-dot/verfy-releases
+claude plugin install verfy@verfy
+```
+
+Fail a pull request when an MCP tool changes (pin the version you use):
+
+```yaml
+- uses: actions/setup-python@v7
+  with: { python-version: "3.13" }
+- run: pip install "verfy==0.6.3" && verfy lock check --config .mcp.json --lock verfy.lock
+```
+
+## In this repository
+
+- [Releases](https://github.com/anvarbekovjavohir277-dot/verfy-releases/releases): the standalone builds and their `SHA256SUMS`.
+- [`plugins/verfy`](plugins/verfy): the Claude Code plugin.
+- [`SECURITY.md`](SECURITY.md): how to report a vulnerability or a bypass privately, and the hall of fame. [`docs/SECURITY_LIMITATIONS.md`](docs/SECURITY_LIMITATIONS.md): what Verfy does not stop.
+- [`advisories/`](advisories): Verfy Advisories, open data with a public source for each.
+- [`docs/research`](docs/research/2026-10-mcp-tool-changes.md) and [`research/`](research): how often MCP servers change their tools between releases (October 2026).
+- [`CHANGELOG.md`](CHANGELOG.md) and [`examples/ci`](examples/ci), a locked MCP config used by the CI test here.
 
 ## How the builds are made
 
@@ -24,7 +53,8 @@ The script downloads the build for your system from the latest release here, che
 
 - macOS and Linux: `rm -rf ~/.local/share/verfy ~/.local/bin/verfy`, then remove the PATH line the installer added to your shell profile, if any.
 - Windows: delete `%LOCALAPPDATA%\Programs\verfy` and remove that folder's `current` entry from your user PATH.
+- pip: `pip uninstall verfy`. The plugin: `claude plugin uninstall verfy@verfy`.
 
-Your keys, policy and receipts live in `~/.verfy` and are not touched by either.
+Your keys, policy and receipts live in `~/.verfy` and are not touched by any of these.
 
 MIT license.
