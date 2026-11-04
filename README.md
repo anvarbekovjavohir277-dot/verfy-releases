@@ -1,6 +1,6 @@
 # Verfy
 
-Verfy checks every tool call a coding agent makes against deterministic allow, ask and deny rules (no model decides), locks MCP tools and instruction files so a quiet change fails CI, and writes an Ed25519-signed receipt for each checked call. Website and docs: https://verfy-tech.vercel.app
+Verfy checks every tool call a coding agent makes against deterministic allow, ask and deny rules (no model decides), locks MCP tools and instruction files so a quiet change fails CI, and writes an Ed25519-signed receipt for each checked call. Website and docs: https://verfy.dev
 
 This repository holds what you need to install and use it: ready-to-run builds, the Claude Code plugin, the security policy, the advisories and the research. The CLI's source code is in [anvarbekovjavohir277-dot/verfy](https://github.com/anvarbekovjavohir277-dot/verfy) (MIT); the Verfy name and logo are covered by the [trademark policy](TRADEMARKS.md).
 
@@ -8,14 +8,14 @@ This repository holds what you need to install and use it: ready-to-run builds, 
 
 ```bash
 pip install verfy                                                  # Python 3.10 or newer
-curl -fsSL https://verfy-tech.vercel.app/install.sh | sh          # or a build with its own Python: macOS (Apple silicon), Linux (x64, arm64)
+curl -fsSL https://verfy.dev/install.sh | sh          # or a build with its own Python: macOS (Apple silicon), Linux (x64, arm64)
 ```
 
 ```powershell
-irm https://verfy-tech.vercel.app/install.ps1 | iex                # Windows (x64)
+irm https://verfy.dev/install.ps1 | iex                # Windows (x64)
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.8.0` first to install a specific version. Then run `verfy init`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.8.1` first to install a specific version. Then run `verfy init`.
 
 Claude Code plugin (it calls the `verfy` command, so install the CLI first):
 
@@ -29,7 +29,7 @@ Fail a pull request when an MCP tool changes (pin the version you use):
 ```yaml
 - uses: actions/setup-python@v7
   with: { python-version: "3.13" }
-- run: pip install "verfy==0.8.0" && verfy lock check --config .mcp.json --lock verfy.lock
+- run: pip install "verfy==0.8.1" && verfy lock check --config .mcp.json --lock verfy.lock
 ```
 
 ## In this repository

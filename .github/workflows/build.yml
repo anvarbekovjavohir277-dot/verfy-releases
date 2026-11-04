@@ -127,6 +127,6 @@ jobs:
             exit 0
           fi
           gh release create "v$VERSION" * --repo "$GITHUB_REPOSITORY" --title "verfy $VERSION" --notes \
-            "Standalone builds of [verfy $VERSION](https://pypi.org/project/verfy/$VERSION/) from PyPI, with Python included. Built and tested by this repository's workflow. Install: https://verfy-tech.vercel.app/docs#install
+            "Standalone builds of [verfy $VERSION](https://pypi.org/project/verfy/$VERSION/) from PyPI, with Python included. Built and tested by this repository's workflow. Install: https://verfy.dev/docs#install
 
           Check a download: \`sha256sum -c SHA256SUMS --ignore-missing\`, and that this workflow built it: \`gh attestation verify verfy-linux-x64.tar.gz -R $GITHUB_REPOSITORY\`"

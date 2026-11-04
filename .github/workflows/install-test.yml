@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Install (download, then run)
         run: |
-          curl -fsSLO https://verfy-tech.vercel.app/install.sh
+          curl -fsSLO https://verfy.dev/install.sh
           sh install.sh
       - name: Use it from a new shell
         shell: bash -l {0}
@@ -43,7 +43,7 @@ jobs:
       - name: Install (download, then run, from Command Prompt as the docs show)
         shell: cmd
         run: |
-          powershell -c "irm https://verfy-tech.vercel.app/install.ps1 -OutFile install.ps1" || exit /b 1
+          powershell -c "irm https://verfy.dev/install.ps1 -OutFile install.ps1" || exit /b 1
           powershell -ExecutionPolicy Bypass -File install.ps1
       - name: Use it from a new shell
         shell: powershell
