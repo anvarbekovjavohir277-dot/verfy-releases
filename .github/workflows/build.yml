@@ -37,7 +37,8 @@ jobs:
           REBUILD: ${{ inputs.rebuild }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          v="${WANT:-$(curl -fsS https://pypi.org/pypi/verfy/json | python3 -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])')}"
+          # the highest release, not info.version: that can name an older version uploaded a moment later
+          v="${WANT:-$(curl -fsS https://pypi.org/pypi/verfy/json | python3 -c 'import json,re,sys; r=json.load(sys.stdin)["releases"]; print(max((k for k,f in r.items() if re.fullmatch(r"\d+\.\d+\.\d+",k) and any(not x["yanked"] for x in f)),key=lambda k:[int(n) for n in k.split(".")]))')}"
           echo "$v" | grep -Eqx '[0-9]+\.[0-9]+\.[0-9]+([a-z0-9.]*)' || { echo "::error::bad version $v"; exit 1; }
           echo "version=$v" >> "$GITHUB_OUTPUT"
           if [ "$REBUILD" = true ] || ! gh release view "v$v" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "build=true"; else echo "build=false"; fi >> "$GITHUB_OUTPUT"
