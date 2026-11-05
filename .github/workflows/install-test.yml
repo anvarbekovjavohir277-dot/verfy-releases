@@ -23,9 +23,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Install (download, then run)
+        env:
+          GH_TOKEN: ${{ github.token }} # so the installer can check the build attestation
         run: |
           curl -fsSLO https://verfy.dev/install.sh
-          sh install.sh
+          sh install.sh | tee install.log
+          grep -q "build attestation verified" install.log
       - name: Use it from a new shell
         shell: bash -l {0}
         run: |
