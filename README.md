@@ -15,7 +15,7 @@ curl -fsSL https://verfy.dev/install.sh | sh          # or a build with its own 
 irm https://verfy.dev/install.ps1 | iex                # Windows (x64)
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.14.0` first to install a specific version. Then run `verfy init`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.15.0` first to install a specific version. Then run `verfy init`.
 
 Claude Code plugin (it calls the `verfy` command, so install the CLI first):
 
@@ -29,7 +29,7 @@ Fail a pull request when an MCP tool changes (pin the version you use):
 ```yaml
 - uses: actions/setup-python@v7
   with: { python-version: "3.13" }
-- run: pip install "verfy==0.14.0" && verfy lock check --config .mcp.json --lock verfy.lock
+- run: pip install "verfy==0.15.0" && verfy lock check --config .mcp.json --lock verfy.lock
 ```
 
 ## In this repository
