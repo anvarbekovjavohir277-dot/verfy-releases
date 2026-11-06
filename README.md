@@ -7,15 +7,17 @@ This repository holds what you need to install and use it: ready-to-run builds, 
 ## Install
 
 ```bash
-pip install verfy                                                  # Python 3.10 or newer
-curl -fsSL https://verfy.dev/install.sh | sh          # or a build with its own Python: macOS (Apple silicon), Linux (x64, arm64)
+pip install verfy                                                                  # Python 3.10 or newer
+curl -fsSLO https://verfy.dev/install.sh && less install.sh && sh install.sh      # or a build with its own Python: macOS (Apple silicon), Linux (x64, arm64)
 ```
 
 ```powershell
-irm https://verfy.dev/install.ps1 | iex                # Windows (x64)
+powershell -c "irm https://verfy.dev/install.ps1 -OutFile install.ps1"           # Windows (x64): download,
+notepad install.ps1                                                               # read,
+powershell -ExecutionPolicy Bypass -File install.ps1                              # run
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. Set `VERFY_VERSION=0.16.0` first to install a specific version. Then run `verfy init`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; to check that, see [Check a release](SECURITY.md#check-a-release). Set `VERFY_VERSION=0.16.1` first to install a specific version. Then run `verfy init`.
 
 Claude Code plugin (it calls the `verfy` command, so install the CLI first):
 
@@ -29,7 +31,7 @@ Fail a pull request when an MCP tool changes (pin the version you use):
 ```yaml
 - uses: actions/setup-python@v7
   with: { python-version: "3.13" }
-- run: pip install "verfy==0.16.0" && verfy lock check --config .mcp.json --lock verfy.lock
+- run: pip install "verfy==0.16.1" && verfy lock check --config .mcp.json --lock verfy.lock
 ```
 
 ## In this repository
