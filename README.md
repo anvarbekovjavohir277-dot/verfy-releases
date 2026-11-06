@@ -17,7 +17,7 @@ notepad install.ps1                                                             
 powershell -ExecutionPolicy Bypass -File install.ps1                              # run
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; to check that, see [Check a release](SECURITY.md#check-a-release). Set `VERFY_VERSION=0.16.1` first to install a specific version. Then run `verfy init`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; [Check a release](SECURITY.md#check-a-release) shows how to check that with cosign. Set `VERFY_VERSION=0.16.1` first to install a specific version. Then run `verfy init`.
 
 Claude Code plugin (it calls the `verfy` command, so install the CLI first):
 

@@ -13,6 +13,36 @@ permissions:
   contents: read
 
 jobs:
+  signature:
+    # the check SECURITY.md shows for someone without the GitHub CLI, on the newest release of both repositories
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+      - name: cosign checks the list, the list checks the download
+        run: |
+          base="https://github.com/$GITHUB_REPOSITORY/releases/latest/download"
+          for f in SHA256SUMS SHA256SUMS.sigstore.json verfy-linux-x64.tar.gz; do curl -fsSLO "$base/$f"; done
+          check() { cosign verify-blob "$1" --bundle "$2" --certificate-identity "$3" --certificate-oidc-issuer https://token.actions.githubusercontent.com; }
+          id="https://github.com/$GITHUB_REPOSITORY/.github/workflows/build.yml@refs/heads/main"
+          check SHA256SUMS SHA256SUMS.sigstore.json "$id"
+          sha256sum -c SHA256SUMS --ignore-missing
+          cp SHA256SUMS changed
+          echo "0000  verfy-linux-x64.tar.gz" >> changed
+          if check changed SHA256SUMS.sigstore.json "$id"; then echo "::error::a changed list passed"; exit 1; fi
+          if check SHA256SUMS SHA256SUMS.sigstore.json "https://github.com/someone/else/.github/workflows/build.yml@refs/heads/main"; then echo "::error::another signer passed"; exit 1; fi
+      - name: cosign checks a file of the PyPI release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          src=anvarbekovjavohir277-dot/verfy
+          tag=$(gh release view --repo "$src" --json tagName --jq .tagName)
+          wheel="verfy-${tag#cli-v}-py3-none-any.whl"
+          gh release download "$tag" --repo "$src" --pattern "$wheel*"
+          cosign verify-blob "$wheel" --bundle "$wheel.sigstore.json" --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-identity "https://github.com/$src/.github/workflows/publish.yml@refs/tags/$tag"
+
   unix:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     strategy:
