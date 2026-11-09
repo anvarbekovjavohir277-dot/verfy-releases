@@ -4,7 +4,7 @@ Verfy checks every tool call a coding agent makes against deterministic allow, a
 
 This repository holds what you need to install and use it: ready-to-run builds, the Claude Code plugin, the security policy, the advisories and the research. The CLI's source code is in [anvarbekovjavohir277-dot/verfy](https://github.com/anvarbekovjavohir277-dot/verfy) (MIT); the Verfy name and logo are covered by the [trademark policy](TRADEMARKS.md).
 
-**Where to go:** bugs and questions in [issues](https://github.com/anvarbekovjavohir277-dot/verfy/issues); security reports privately, as [SECURITY.md](https://github.com/anvarbekovjavohir277-dot/verfy-releases/blob/main/SECURITY.md) describes.
+**Where to go:** bugs and questions in [issues](https://github.com/anvarbekovjavohir277-dot/verfy-releases/issues); security reports privately, as [SECURITY.md](https://github.com/anvarbekovjavohir277-dot/verfy-releases/blob/main/SECURITY.md) describes.
 
 ## Install
 
