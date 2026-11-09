@@ -31,4 +31,4 @@ An organization can require the marketplace and the plugin on every machine thro
 
 - If the `verfy` command is not installed, the hook cannot run. Claude Code then reports a hook error and does not block the call, so install the CLI first.
 - Use either this plugin or `verfy hook install`, not both: with both, every call is checked twice and gets two receipts.
-- Verfy's checks are not a sandbox; `verfy run --sandbox` adds one on macOS and Linux. See [`docs/SECURITY_LIMITATIONS.md`](../../docs/SECURITY_LIMITATIONS.md).
+- Verfy is not a sandbox. See [`docs/SECURITY_LIMITATIONS.md`](../../docs/SECURITY_LIMITATIONS.md).
