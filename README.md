@@ -19,7 +19,7 @@ notepad install.ps1                                                             
 powershell -ExecutionPolicy Bypass -File install.ps1                              # run
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; [Check a release](SECURITY.md#check-a-release) shows how to check that with cosign. Set `VERFY_VERSION=0.19.0` first to install a specific version. Then run `verfy init`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; [Check a release](SECURITY.md#check-a-release) shows how to check that with cosign. Set `VERFY_VERSION=0.20.0` first to install a specific version. Then run `verfy init`.
 
 Claude Code plugin (it calls the `verfy` command, so install the CLI first):
 
@@ -33,7 +33,7 @@ Fail a pull request when an MCP tool changes (pin the version you use):
 ```yaml
 - uses: actions/setup-python@v7
   with: { python-version: "3.13" }
-- run: pip install "verfy==0.19.0" && verfy lock check --config .mcp.json --lock verfy.lock
+- run: pip install "verfy==0.20.0" && verfy lock check --config .mcp.json --lock verfy.lock
 ```
 
 ## In this repository
