@@ -98,9 +98,32 @@ jobs:
           name: ${{ matrix.target }}
           path: verfy-${{ matrix.target }}.${{ matrix.ext }}
 
+  vsix:
+    name: Build the editor extension (VS Code, Cursor, Windsurf)
+    needs: version
+    if: needs.version.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Package
+        run: |
+          cd ide/vscode
+          # the extension carries the version of the CLI release it ships with
+          test "$(node -p 'require("./package.json").version')" = "$VERSION" || npm version --no-git-tag-version "$VERSION"
+          node --check extension.js
+          npx --yes @vscode/vsce@3.6.0 package --no-dependencies --out "$GITHUB_WORKSPACE/verfy-vscode.vsix"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vsix
+          path: verfy-vscode.vsix
+
   release:
     name: Publish the release
-    needs: [version, build]
+    needs: [version, build, vsix]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -133,6 +156,6 @@ jobs:
             exit 0
           fi
           gh release create "v$VERSION" * --repo "$GITHUB_REPOSITORY" --title "verfy $VERSION" --notes \
-            "Standalone builds of [verfy $VERSION](https://pypi.org/project/verfy/$VERSION/) from PyPI, with Python included. Built and tested by this repository's workflow. Install: https://verfy.dev/docs#install
+            "Standalone builds of [verfy $VERSION](https://pypi.org/project/verfy/$VERSION/) from PyPI, with Python included. Built and tested by this repository's workflow. Install: https://verfy.dev/docs#install. The editor extension for VS Code, Cursor and Windsurf is verfy-vscode.vsix: in the editor, Extensions > ... > Install from VSIX.
 
           Check a download: \`sha256sum -c SHA256SUMS --ignore-missing\`, and that this workflow built it: \`gh attestation verify verfy-linux-x64.tar.gz -R $GITHUB_REPOSITORY\`, or with cosign as SECURITY.md shows."
