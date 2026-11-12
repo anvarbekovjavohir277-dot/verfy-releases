@@ -149,13 +149,28 @@ jobs:
           inputs: ./out/SHA256SUMS
           upload-signing-artifacts: false
           release-signing-artifacts: false
+      # the release page: .github/release-notes.md with this version's section of CHANGELOG.md
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+      - name: Write the release notes
+        run: |
+          python3 - <<'EOF'
+          import os, re
+          v = os.environ["VERSION"]
+          log = open("repo/CHANGELOG.md", encoding="utf-8").read()
+          m = re.search(r"^## " + re.escape(v) + r" [^\n]*\n(.*?)(?=^## |\Z)", log, re.M | re.S)
+          changes = m.group(1).strip() if m else "See [CHANGELOG.md](CHANGELOG.md)."
+          notes = open("repo/.github/release-notes.md", encoding="utf-8").read()
+          notes = notes.replace("VERFY_VERSION", v).replace("VERFY_CHANGES", changes)
+          open(os.path.join(os.environ["RUNNER_TEMP"], "notes.md"), "w", encoding="utf-8").write(notes)
+          EOF
+          head -c 600 "$RUNNER_TEMP/notes.md"
       - run: |
           cd out
           if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "v$VERSION" * --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit "v$VERSION" --repo "$GITHUB_REPOSITORY" --notes-file "$RUNNER_TEMP/notes.md"
             exit 0
           fi
-          gh release create "v$VERSION" * --repo "$GITHUB_REPOSITORY" --title "verfy $VERSION" --notes \
-            "Standalone builds of [verfy $VERSION](https://pypi.org/project/verfy/$VERSION/) from PyPI, with Python included. Built and tested by this repository's workflow. Install: https://verfy.dev/docs#install. The editor extension for VS Code, Cursor and Windsurf is verfy-vscode.vsix: in the editor, Extensions > ... > Install from VSIX.
-
-          Check a download: \`sha256sum -c SHA256SUMS --ignore-missing\`, and that this workflow built it: \`gh attestation verify verfy-linux-x64.tar.gz -R $GITHUB_REPOSITORY\`, or with cosign as SECURITY.md shows."
+          gh release create "v$VERSION" * --repo "$GITHUB_REPOSITORY" --title "verfy $VERSION" --notes-file "$RUNNER_TEMP/notes.md"
