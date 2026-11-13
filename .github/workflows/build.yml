@@ -174,3 +174,13 @@ jobs:
             exit 0
           fi
           gh release create "v$VERSION" * --repo "$GITHUB_REPOSITORY" --title "verfy $VERSION" --notes-file "$RUNNER_TEMP/notes.md"
+      # Homebrew and Scoop read Formula/verfy.rb and bucket/verfy.json from main: point them at this release's files
+      - name: Homebrew formula and Scoop manifest
+        run: |
+          cd repo
+          python3 scripts/packages.py "$VERSION" ../out/SHA256SUMS
+          git add Formula/verfy.rb bucket/verfy.json
+          if git diff --cached --quiet; then echo "nothing to change"; exit 0; fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -q -m "Homebrew and Scoop: verfy $VERSION"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0; sleep 10; done
+          exit 1

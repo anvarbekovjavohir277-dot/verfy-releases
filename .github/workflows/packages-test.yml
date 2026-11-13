@@ -1,0 +1,50 @@
+name: Test Homebrew and Scoop
+
+# Installs verfy the way the README says, from this repository as a Homebrew tap and a Scoop bucket, on clean machines.
+# Runs after each standalone build (which refreshes Formula/verfy.rb and bucket/verfy.json) and on demand.
+on:
+  workflow_run:
+    workflows: ["Build standalone verfy"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  homebrew:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: brew install
+        run: |
+          [ -x /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew tap anvarbekovjavohir277-dot/verfy "https://github.com/$GITHUB_REPOSITORY"
+          brew install anvarbekovjavohir277-dot/verfy/verfy
+          verfy --version
+          brew test anvarbekovjavohir277-dot/verfy/verfy
+
+  scoop:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: scoop install
+        run: |
+          Invoke-RestMethod -Uri https://get.scoop.sh -OutFile install-scoop.ps1
+          .\install-scoop.ps1 -RunAsAdmin   # the runner's account is an administrator
+          $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
+          scoop bucket add verfy "https://github.com/$env:GITHUB_REPOSITORY"
+          scoop install verfy/verfy
+          $got = (verfy --version).Trim()
+          $want = "verfy " + (Get-Content "$env:USERPROFILE\scoop\buckets\verfy\bucket\verfy.json" | ConvertFrom-Json).version
+          if ($got -ne $want) { throw "got '$got', want '$want'" }
+          verfy check "npm test"

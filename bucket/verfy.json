@@ -1,0 +1,29 @@
+{
+    "version": "0.22.0",
+    "description": "Lockfile and guard for the MCP tools and commands your AI coding agents use",
+    "homepage": "https://verfy.dev",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/anvarbekovjavohir277-dot/verfy-releases/releases/download/v0.22.0/verfy-windows-x64.zip",
+            "hash": "1d41e09b4b2596fa61ed1cbcd98cd86231f5ae88d713f4ec0e0dbaa09dd3d8df",
+            "extract_dir": "verfy"
+        }
+    },
+    "bin": "verfy.exe",
+    "checkver": {
+        "github": "https://github.com/anvarbekovjavohir277-dot/verfy-releases"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/anvarbekovjavohir277-dot/verfy-releases/releases/download/v$version/verfy-windows-x64.zip",
+                "extract_dir": "verfy"
+            }
+        },
+        "hash": {
+            "url": "$baseurl/SHA256SUMS"
+        }
+    },
+    "notes": "Windows Smart App Control may block verfy.exe until the build is code-signed; `pip install verfy` works meanwhile."
+}

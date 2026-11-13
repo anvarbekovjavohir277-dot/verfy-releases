@@ -1,0 +1,20 @@
+name: An idea for Verfy
+description: A check, an agent, a command or an integration you would like.
+labels: [idea]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you are trying to do
+      description: The situation, not the solution yet.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where
+      options: [The guard (hook rules), Lock and CI, Scanner, Setup and agents, Sandbox, Verfy Cloud, Website and docs, Something else]

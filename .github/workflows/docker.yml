@@ -1,0 +1,76 @@
+name: Container image
+
+# Builds docker/Dockerfile for the newest release and publishes it as ghcr.io/anvarbekovjavohir277-dot/verfy:<version>
+# and :latest. Runs after each standalone build; it skips a version whose image is already there.
+on:
+  workflow_run:
+    workflows: ["Build standalone verfy"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "verfy version (empty: the newest release of this repository)"
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker
+  cancel-in-progress: false
+
+jobs:
+  image:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/anvarbekovjavohir277-dot/verfy
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Version
+        id: v
+        env:
+          WANT: ${{ inputs.version }}
+        run: |
+          v="${WANT:-$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName | sed 's/^v//')}"
+          echo "$v" | grep -Eqx '[0-9]+\.[0-9]+\.[0-9]+' || { echo "::error::bad version $v"; exit 1; }
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - name: Sign in to the registry
+        run: echo "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+      - name: Skip a version that is already published
+        id: have
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != workflow_dispatch ] && docker manifest inspect "$IMAGE:${{ steps.v.outputs.version }}" >/dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"; echo "$IMAGE:${{ steps.v.outputs.version }} is already there"
+          fi
+      - name: Build
+        if: steps.have.outputs.skip != 'true'
+        run: |
+          v="${{ steps.v.outputs.version }}"
+          for i in 1 2 3 4 5 6; do
+            docker build --pull --build-arg "VERFY_VERSION=$v" -t "$IMAGE:$v" -t "$IMAGE:latest" docker/ && break
+            [ "$i" = 6 ] && exit 1
+            echo "verfy $v may not be on every PyPI mirror yet; trying again in 30 s"; sleep 30
+          done
+      - name: Test
+        if: steps.have.outputs.skip != 'true'
+        run: |
+          v="${{ steps.v.outputs.version }}"
+          test "$(docker run --rm "$IMAGE:$v" --version | tr -d '\r')" = "verfy $v"
+          docker run --rm "$IMAGE:$v" demo | grep -q "chain verified"
+          set +e; docker run --rm "$IMAGE:$v" check "rm -rf ~" >/dev/null; code=$?; set -e
+          test "$code" -eq 2
+          # the lock check of the CI example, with the demo server, as people run it in their pipelines
+          docker run --rm -v "$PWD/examples/ci:/work" "$IMAGE:$v" lock check --config mcp.json --lock verfy.lock
+      - name: Publish
+        if: steps.have.outputs.skip != 'true'
+        run: |
+          docker push "$IMAGE:${{ steps.v.outputs.version }}"
+          docker push "$IMAGE:latest"
