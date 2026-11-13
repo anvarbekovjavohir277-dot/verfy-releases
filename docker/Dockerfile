@@ -1,7 +1,7 @@
 # Verfy in a container, for CI: the CLI from PyPI, with Node.js (servers started with npx) and uv (servers started
-# with uvx). Built and published by .github/workflows/docker.yml as ghcr.io/anvarbekovjavohir277-dot/verfy.
+# with uvx). Built and published by .github/workflows/docker.yml as ghcr.io/verfy-dev/verfy.
 #
-#   docker run --rm -v "$PWD:/work" ghcr.io/anvarbekovjavohir277-dot/verfy lock check
+#   docker run --rm -v "$PWD:/work" ghcr.io/verfy-dev/verfy lock check
 FROM node:22-bookworm-slim
 
 ARG VERFY_VERSION
@@ -17,7 +17,7 @@ RUN test -n "$VERFY_VERSION" \
 ENV PATH="/opt/verfy/bin:${PATH}" \
     VERFY_HOME=/tmp/verfy
 WORKDIR /work
-LABEL org.opencontainers.image.source="https://github.com/anvarbekovjavohir277-dot/verfy-releases" \
+LABEL org.opencontainers.image.source="https://github.com/verfy-dev/verfy-releases" \
       org.opencontainers.image.description="Verfy: lockfile and guard for the MCP tools your AI agents use" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.url="https://verfy.dev"

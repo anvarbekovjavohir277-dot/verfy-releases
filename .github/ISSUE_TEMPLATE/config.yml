@@ -1,10 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: A security problem or a way around Verfy's checks
-    url: https://github.com/anvarbekovjavohir277-dot/verfy-releases/security/policy
+    url: https://github.com/verfy-dev/verfy-releases/security/policy
     about: Report it privately, as SECURITY.md says. Valid bypasses are credited in the hall of fame.
   - name: A question, an idea, or show what you built
-    url: https://github.com/anvarbekovjavohir277-dot/verfy-releases/discussions
+    url: https://github.com/verfy-dev/verfy-releases/discussions
     about: Ask and talk in Discussions.
   - name: The docs
     url: https://verfy.dev/docs

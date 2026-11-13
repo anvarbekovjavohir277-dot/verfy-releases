@@ -2,9 +2,9 @@
 
 Verfy checks every tool call a coding agent makes against deterministic allow, ask and deny rules (no model decides), locks MCP tools and instruction files so a quiet change fails CI, and writes an Ed25519-signed receipt for each checked call. Website and docs: https://verfy.dev
 
-This repository holds what you need to install and use it: ready-to-run builds, the Claude Code plugin, the security policy, the advisories and the research. The CLI's source code is in [anvarbekovjavohir277-dot/verfy](https://github.com/anvarbekovjavohir277-dot/verfy) (MIT); the Verfy name and logo are covered by the [trademark policy](TRADEMARKS.md).
+This repository holds what you need to install and use it: ready-to-run builds, the Claude Code plugin, the security policy, the advisories and the research. The CLI's source code is in [verfy-dev/verfy](https://github.com/verfy-dev/verfy) (MIT); the Verfy name and logo are covered by the [trademark policy](TRADEMARKS.md).
 
-**Where to go:** bugs and ideas in [issues](https://github.com/anvarbekovjavohir277-dot/verfy-releases/issues/new/choose), questions in [Discussions](https://github.com/anvarbekovjavohir277-dot/verfy-releases/discussions); security reports privately, as [SECURITY.md](https://github.com/anvarbekovjavohir277-dot/verfy-releases/blob/main/SECURITY.md) describes.
+**Where to go:** bugs and ideas in [issues](https://github.com/verfy-dev/verfy-releases/issues/new/choose), questions in [Discussions](https://github.com/verfy-dev/verfy-releases/discussions); security reports privately, as [SECURITY.md](https://github.com/verfy-dev/verfy-releases/blob/main/SECURITY.md) describes.
 
 ## Install
 
@@ -19,14 +19,14 @@ notepad install.ps1                                                             
 powershell -ExecutionPolicy Bypass -File install.ps1                              # run
 ```
 
-The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; [Check a release](SECURITY.md#check-a-release) shows how to check that with cosign. Set `VERFY_VERSION=0.23.0` first to install a specific version. Then run `verfy init`.
+The script downloads the build for your system from the latest release here, checks it against the release's `SHA256SUMS`, and puts `verfy` on your PATH. With a signed-in GitHub CLI it also checks the build attestation. Without it, the checksum shows only that the download is whole, not who built it; [Check a release](SECURITY.md#check-a-release) shows how to check that with cosign. Set `VERFY_VERSION=0.23.1` first to install a specific version. Then run `verfy init`.
 
 With a package manager or a container (the same builds and checksums):
 
 ```bash
-brew tap anvarbekovjavohir277-dot/verfy https://github.com/anvarbekovjavohir277-dot/verfy-releases && brew install verfy    # macOS (Apple silicon), Linux
-scoop bucket add verfy https://github.com/anvarbekovjavohir277-dot/verfy-releases; scoop install verfy/verfy                # Windows
-docker run --rm -v "$PWD:/work" ghcr.io/anvarbekovjavohir277-dot/verfy lock check                                         # CI: with Node.js and uv for the servers
+brew tap verfy-dev/verfy https://github.com/verfy-dev/verfy-releases && brew install verfy    # macOS (Apple silicon), Linux
+scoop bucket add verfy https://github.com/verfy-dev/verfy-releases; scoop install verfy/verfy                # Windows
+docker run --rm -v "$PWD:/work" ghcr.io/verfy-dev/verfy lock check                                         # CI: with Node.js and uv for the servers
 ```
 
 This repository is the Homebrew tap and the Scoop bucket: each release build rewrites [`Formula/verfy.rb`](Formula/verfy.rb) and [`bucket/verfy.json`](bucket/verfy.json) with that release's files and checksums, and a workflow installs both on clean machines.
@@ -34,7 +34,7 @@ This repository is the Homebrew tap and the Scoop bucket: each release build rew
 Claude Code plugin (it calls the `verfy` command, so install the CLI first):
 
 ```bash
-claude plugin marketplace add anvarbekovjavohir277-dot/verfy-releases
+claude plugin marketplace add verfy-dev/verfy-releases
 claude plugin install verfy@verfy
 ```
 
@@ -43,12 +43,12 @@ Fail a pull request when an MCP tool changes (pin the version you use):
 ```yaml
 - uses: actions/setup-python@v7
   with: { python-version: "3.13" }
-- run: pip install "verfy==0.23.0" && verfy lock check --config .mcp.json --lock verfy.lock
+- run: pip install "verfy==0.23.1" && verfy lock check --config .mcp.json --lock verfy.lock
 ```
 
 ## In this repository
 
-- [Releases](https://github.com/anvarbekovjavohir277-dot/verfy-releases/releases): the standalone builds and their `SHA256SUMS`.
+- [Releases](https://github.com/verfy-dev/verfy-releases/releases): the standalone builds and their `SHA256SUMS`.
 - [`plugins/verfy`](plugins/verfy): the Claude Code plugin.
 - [`SECURITY.md`](SECURITY.md): how to report a vulnerability or a bypass privately, and the hall of fame. [`docs/SECURITY_LIMITATIONS.md`](docs/SECURITY_LIMITATIONS.md): what Verfy does not stop.
 - [`advisories/`](advisories): Verfy Advisories, open data with a public source for each.

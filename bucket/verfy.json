@@ -5,19 +5,19 @@
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/anvarbekovjavohir277-dot/verfy-releases/releases/download/v0.23.0/verfy-windows-x64.zip",
+            "url": "https://github.com/verfy-dev/verfy-releases/releases/download/v0.23.0/verfy-windows-x64.zip",
             "hash": "298049ba684ef084f4684d0ff86de3de36719f8ecd04a1ccecb4671e7a8edc12",
             "extract_dir": "verfy"
         }
     },
     "bin": "verfy.exe",
     "checkver": {
-        "github": "https://github.com/anvarbekovjavohir277-dot/verfy-releases"
+        "github": "https://github.com/verfy-dev/verfy-releases"
     },
     "autoupdate": {
         "architecture": {
             "64bit": {
-                "url": "https://github.com/anvarbekovjavohir277-dot/verfy-releases/releases/download/v$version/verfy-windows-x64.zip",
+                "url": "https://github.com/verfy-dev/verfy-releases/releases/download/v$version/verfy-windows-x64.zip",
                 "extract_dir": "verfy"
             }
         },

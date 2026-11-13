@@ -1,6 +1,6 @@
 name: Container image
 
-# Builds docker/Dockerfile for the newest release and publishes it as ghcr.io/anvarbekovjavohir277-dot/verfy:<version>
+# Builds docker/Dockerfile for the newest release and publishes it as ghcr.io/verfy-dev/verfy:<version>
 # and :latest. Runs after each standalone build; it skips a version whose image is already there.
 on:
   workflow_run:
@@ -28,7 +28,7 @@ jobs:
       contents: read
       packages: write
     env:
-      IMAGE: ghcr.io/anvarbekovjavohir277-dot/verfy
+      IMAGE: ghcr.io/verfy-dev/verfy
       GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

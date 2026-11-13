@@ -7,8 +7,8 @@ The release job of build.yml runs it after it publishes the standalone builds, w
 Both point at the files of that GitHub release, with their SHA-256 from the signed list. This repository is the tap and
 the bucket:
 
-    brew tap anvarbekovjavohir277-dot/verfy https://github.com/anvarbekovjavohir277-dot/verfy-releases && brew install verfy
-    scoop bucket add verfy https://github.com/anvarbekovjavohir277-dot/verfy-releases && scoop install verfy
+    brew tap verfy-dev/verfy https://github.com/verfy-dev/verfy-releases && brew install verfy
+    scoop bucket add verfy https://github.com/verfy-dev/verfy-releases && scoop install verfy
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = "anvarbekovjavohir277-dot/verfy-releases"
+REPO = "verfy-dev/verfy-releases"
 ROOT = Path(__file__).resolve().parent.parent
 DESC = "Lockfile and guard for the MCP tools and commands your AI coding agents use"
 

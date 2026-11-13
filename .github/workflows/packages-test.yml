@@ -24,10 +24,10 @@ jobs:
       - name: brew install
         run: |
           [ -x /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew tap anvarbekovjavohir277-dot/verfy "https://github.com/$GITHUB_REPOSITORY"
-          brew install anvarbekovjavohir277-dot/verfy/verfy
+          brew tap verfy-dev/verfy "https://github.com/$GITHUB_REPOSITORY"
+          brew install verfy-dev/verfy/verfy
           verfy --version
-          brew test anvarbekovjavohir277-dot/verfy/verfy
+          brew test verfy-dev/verfy/verfy
 
   scoop:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'

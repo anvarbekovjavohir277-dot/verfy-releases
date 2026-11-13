@@ -36,7 +36,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          src=anvarbekovjavohir277-dot/verfy
+          src=verfy-dev/verfy
           tag=$(gh release view --repo "$src" --json tagName --jq .tagName)
           wheel="verfy-${tag#cli-v}-py3-none-any.whl"
           gh release download "$tag" --repo "$src" --pattern "$wheel*"
